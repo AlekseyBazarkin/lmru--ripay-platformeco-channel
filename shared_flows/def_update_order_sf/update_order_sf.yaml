@@ -1,0 +1,79 @@
+id: d11bab55-e2d8-409a-8cac-75ef67b395a1
+info:
+  name: order_generate_uuid_and_send_to_kafka_sf
+  title: order_generate_uuid_and_send_to_kafka_sf
+  version: 1.0.0 (by Svetlana Galunova)
+  description: обогащает UUID и отправляет в kafka
+properties:
+  type: object
+  properties:
+    config:
+      type: string
+      format: ref
+    order:
+      type: string
+      format: ref
+    title:
+      type: string
+    description:
+      type: string
+    output:
+      type: string
+      format: ref
+  required:
+    - order
+    - output
+schemas:
+  output:
+    type: object
+  order:
+    type: object
+  config:
+    type: object
+flow:
+  execute:
+    - function:
+        id: a7be44ab-d2d0-4c98-ad96-7848a8c241ed
+        name: generateUUID
+        title: generate UUID
+        output: uuid
+    - setTags:
+        id: a9041dc5-5e2f-4b4f-9c3c-46322a670f79
+        title: set tags
+        tags: '{"requestUuid": "$(uuid)"}'
+    - kafkaSend:
+        id: ed47b72e-0f96-485f-a6a6-aaf227eac4de
+        title: '[Send to Kafka]'
+        connectorID: kafka-connector-order-create
+        configurationType: UI
+        proceed-on-error: true
+        output: kafkaResult
+        topic: '${config.rms_api_order_create_topic}'
+        transactional: false
+        messages:
+          - key: '${uuid}'
+            value: '${JSON.stringify(order)}'
+        key:
+          configurationType: Raw
+          dataType: String
+        value:
+          configurationType: Raw
+          dataType: String
+    - switch:
+        id: 16141c73-33f8-4152-bcac-24865f598a62
+        title: Kafka result ?
+        case:
+          - execute:
+              - function:
+                  id: 76e1176e-e526-4d89-9e58-abfe90fa1921
+                  name: set_output
+                  title: set_output
+                  output: output
+            title: Valid
+            condition: '!kafkaResult.error'
+          - otherwise:
+              - function:
+                  id: 39b13cbc-76d9-4e98-b4f3-6620eacafd23
+                  name: set_output_500
+                  title: set_output
+                  output: output

@@ -1,0 +1,1247 @@
+{
+    "connectors": {
+        "type": "const",
+        "value": [{
+                "id": "http",
+                "name": "fastify-connector",
+                "exposedPort": 4000,
+                "enabled": true,
+                "settings": {
+                    "listenAddr": "::",
+                    "listenPort": 4000,
+                    "bodyLimit": 1048576,
+                    "underPressureOptions": {
+                        "message": "Service Unavailable",
+                        "retryAfter": 10,
+                        "healthCheckInterval": -1,
+                        "sampleInterval": 5
+                    },
+                    "multipartLimits": {
+                        "fieldNameSize": 100,
+                        "fieldSize": 1048576,
+                        "headerPairs": 2000
+                    },
+                    "octetStreamSizeLimit": 5242880,
+                    "jsonSchemaValidation": {
+                        "removeAdditional": "true",
+                        "useDefaults": "true",
+                        "coerceTypes": "array"
+                    }
+                }
+            },
+            {
+                "id": "superagent-default",
+                "name": "superagent-connector",
+                "settings": {
+                    "disableTLS": true
+                }
+            },
+            {
+                "id": "jdbc-connector-oracle",
+                "name": "jdbc-connector",
+                "enabled": true,
+                "settings": {
+                    "url": "jdbc-satellite:50051",
+                    "dataSource": {
+                        "uri": "{{rms_jdbc_uri}}",
+                        "username": "{{rms_jdbc_user}}",
+                        "password": "{{rms_jdbc_password}}",
+                        "connectionTimeoutMs": 10000
+                    },
+                    "connectionDeadline": 10,
+                    "basicAuth": {
+                        "username": "{{rms_jdbc_user}}",
+                        "password": "{{rms_jdbc_password}}"
+                    },
+                    "connectionPool": {
+                        "minimumIdle": 10,
+                        "maximumPoolSize": 50,
+                        "validationTimeoutMs": 5000,
+                        "leakDetectionThresholdMs": 0,
+                        "idleTimeoutMs": 120000,
+                        "maxLifetimeMs": 1800000,
+                        "initializationFailTimeoutMs": 1
+                    },
+                    "grpcOptions": [],
+                    "tags": {},
+                    "tracing": {
+                        "enabled": true,
+                        "statement": true,
+                        "parameters": true,
+                        "options": true,
+                        "result": true
+                    }
+                }
+            },
+            {
+                "id": "kafka-connector-invoice-repo-put",
+                "name": "kafka-connector",
+                "enabled": true,
+                "settings": {
+                    "connection": {
+                        "group.id": "platformeco-group-tkfk4u-dev",
+                        "bootstrap.servers": [
+                            "{{rms_broker_kafka_1}}",
+                            "{{rms_broker_kafka_2}}",
+                            "{{rms_broker_kafka_3}}",
+                            "{{rms_broker_kafka_4}}",
+                            "{{rms_broker_kafka_5}}"
+                        ]
+                    },
+                    "schemaRegistry": {
+                        "host": "http://t-kfk4u-st03.hq.ru.corp.leroymerlin.com:8081"
+                    },
+                    "parameters": [{
+                            "key": "security.protocol",
+                            "value": "SASL_SSL"
+                        },
+                        {
+                            "key": "sasl.mechanism",
+                            "value": " SCRAM-SHA-256"
+                        },
+                        {
+                            "key": "sasl.jaas.config",
+                            "value": "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"{{rms_invoice_kafka_writer_user}}\" password=\"{{rms_invoice_kafka_writer_password}}\";"
+                        },
+                        {
+                            "key": "ssl.truststore.location",
+                            "value": "./certs/client.truststore.jks"
+                        },
+                        {
+                            "key": "ssl.truststore.password",
+                            "value": "{{TRUSTSTORE_PASSWORD}}"
+                        },
+                        {
+                            "key": "max.poll.records",
+                            "value": "10"
+                        },
+                        {
+                            "key": "ssl.endpoint.identification.algorithm",
+                            "value": "https"
+                        },
+                        {
+                            "key": "auto.offset.reset",
+                            "value": "earliest"
+                        }
+                    ],
+                    "nats": {
+                        "servers": [
+                            "nats://localhost:4222"
+                        ]
+                    },
+                    "timeouts": {
+                        "connectorInit": 60000,
+                        "consumerSendBatch": 30000,
+                        "consumerBatchProcessing": 300000,
+                        "producerSendBatch": 10000,
+                        "commitBatch": 30000,
+                        "pollInterval": 100
+                    },
+                    "tracing": {
+                        "enabled": true,
+                        "meta": true,
+                        "messages": true,
+                        "batch": true
+                    }
+                }
+            },
+            {
+                "id": "kafka-connector-transfer-repo-put",
+                "name": "kafka-connector",
+                "enabled": true,
+                "settings": {
+                    "connection": {
+                        "group.id": "federalcustomer-tkfk4u-dev",
+                        "bootstrap.servers": [
+                            "{{rms_broker_kafka_1}}",
+                            "{{rms_broker_kafka_2}}",
+                            "{{rms_broker_kafka_3}}",
+                            "{{rms_broker_kafka_4}}",
+                            "{{rms_broker_kafka_5}}"
+                        ]
+                    },
+                    "schemaRegistry": {
+                        "host": "http://t-kfk4u-st03.hq.ru.corp.leroymerlin.com:8081"
+                    },
+                    "parameters": [{
+                            "key": "security.protocol",
+                            "value": "SASL_SSL"
+                        },
+                        {
+                            "key": "sasl.mechanism",
+                            "value": "SCRAM-SHA-256"
+                        },
+                        {
+                            "key": "sasl.jaas.config",
+                            "value": "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"{{rms_transfer_kafka_writer_main_user}}\" password=\"{{rms_transfer_kafka_writer_main_password}}\";"
+                        },
+                        {
+                            "key": "ssl.truststore.location",
+                            "value": "./certs/client.truststore.jks"
+                        },
+                        {
+                            "key": "ssl.truststore.password",
+                            "value": "{{TRUSTSTORE_PASSWORD}}"
+                        },
+                        {
+                            "key": "max.poll.records",
+                            "value": "10"
+                        },
+                        {
+                            "key": "ssl.endpoint.identification.algorithm",
+                            "value": "https"
+                        },
+                        {
+                            "key": "auto.offset.reset",
+                            "value": "earliest"
+                        }
+                    ],
+                    "nats": {
+                        "servers": [
+                            "nats://localhost:4222"
+                        ]
+                    },
+                    "timeouts": {
+                        "connectorInit": 60000,
+                        "consumerSendBatch": 30000,
+                        "consumerBatchProcessing": 300000,
+                        "producerSendBatch": 10000,
+                        "commitBatch": 30000,
+                        "pollInterval": 100
+                    },
+                    "tracing": {
+                        "enabled": true,
+                        "meta": true,
+                        "messages": true,
+                        "batch": true
+                    }
+                }
+            },
+            {
+                "id": "jdbc-connector-oracle-rms-invoice",
+                "name": "jdbc-connector",
+                "enabled": true,
+                "settings": {
+                    "url": "jdbc-satellite:50051",
+                    "dataSource": {
+                        "uri": "{{rms_invoice_jdbc_uri}}",
+                        "username": "{{rms_invoice_jdbc_user}}",
+                        "password": "{{rms_invoice_jdbc_password}}",
+                        "connectionTimeoutMs": 5000
+                    },
+                    "connectionDeadline": 5,
+                    "basicAuth": {
+                        "username": "{{rms_invoice_jdbc_user}}",
+                        "password": "{{rms_invoice_jdbc_password}}"
+                    },
+                    "connectionPool": {
+                        "idleTimeoutMs": 120000,
+                        "maxLifetimeMs": 1800000,
+                        "minimumIdle": 1,
+                        "maximumPoolSize": 1,
+                        "initializationFailTimeoutMs": 1,
+                        "validationTimeoutMs": 5000,
+                        "leakDetectionThresholdMs": 0
+                    },
+                    "grpcOptions": [],
+                    "tracing": {
+                        "enabled": true,
+                        "statement": true,
+                        "parameters": true,
+                        "options": true,
+                        "result": true
+                    }
+                }
+            },
+            {
+                "id": "kafka-connector-canonical-repo-transfer",
+                "name": "kafka-connector",
+                "enabled": true,
+                "settings": {
+                    "connection": {
+                        "group.id": "newwms-tkfk4u-dev",
+                        "bootstrap.servers": [
+                            "{{rms_broker_kafka_1}}",
+                            "{{rms_broker_kafka_2}}",
+                            "{{rms_broker_kafka_3}}",
+                            "{{rms_broker_kafka_4}}",
+                            "{{rms_broker_kafka_5}}"
+                        ]
+                    },
+                    "schemaRegistry": {
+                        "host": "http://t-kfk4u-st03.hq.ru.corp.leroymerlin.com:8081"
+                    },
+                    "parameters": [{
+                            "key": "security.protocol",
+                            "value": "SASL_SSL"
+                        },
+                        {
+                            "key": "sasl.mechanism",
+                            "value": "SCRAM-SHA-256"
+                        },
+                        {
+                            "key": "sasl.jaas.config",
+                            "value": "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"{{rms_canonical_kafka_topic_transfer_user}}\" password=\"{{rms_canonical_kafka_topic_transfer_password}}\";"
+                        },
+                        {
+                            "key": "ssl.truststore.location",
+                            "value": "./certs/client.truststore.jks"
+                        },
+                        {
+                            "key": "ssl.truststore.password",
+                            "value": "{{TRUSTSTORE_PASSWORD}}"
+                        },
+                        {
+                            "key": "max.poll.records",
+                            "value": "10"
+                        },
+                        {
+                            "key": "ssl.endpoint.identification.algorithm",
+                            "value": "https"
+                        },
+                        {
+                            "key": "auto.offset.reset",
+                            "value": "earliest"
+                        }
+                    ],
+                    "nats": {
+                        "servers": [
+                            "nats://localhost:4222"
+                        ]
+                    },
+                    "timeouts": {
+                        "connectorInit": 60000,
+                        "consumerSendBatch": 30000,
+                        "consumerBatchProcessing": 300000,
+                        "producerSendBatch": 10000,
+                        "commitBatch": 30000,
+                        "pollInterval": 100
+                    },
+                    "tracing": {
+                        "enabled": true,
+                        "meta": true,
+                        "messages": true,
+                        "batch": true
+                    }
+                }
+            },
+            {
+                "id": "kafka-connector-canonical-repo-order",
+                "name": "kafka-connector",
+                "enabled": true,
+                "settings": {
+                    "connection": {
+                        "group.id": "newwms-tkfk4u-order-dev",
+                        "bootstrap.servers": [
+                            "{{rms_broker_kafka_1}}",
+                            "{{rms_broker_kafka_2}}",
+                            "{{rms_broker_kafka_3}}",
+                            "{{rms_broker_kafka_4}}",
+                            "{{rms_broker_kafka_5}}"
+                        ]
+                    },
+                    "schemaRegistry": {
+                        "host": "http://t-kfk4u-st03.hq.ru.corp.leroymerlin.com:8081"
+                    },
+                    "parameters": [{
+                            "key": "security.protocol",
+                            "value": "SASL_SSL"
+                        },
+                        {
+                            "key": "sasl.mechanism",
+                            "value": "SCRAM-SHA-256"
+                        },
+                        {
+                            "key": "sasl.jaas.config",
+                            "value": "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"{{rms_canonical_kafka_topic_order_user}}\" password=\"{{rms_canonical_kafka_topic_order_password}}\";"
+                        },
+                        {
+                            "key": "ssl.truststore.location",
+                            "value": "./certs/client.truststore.jks"
+                        },
+                        {
+                            "key": "ssl.truststore.password",
+                            "value": "{{TRUSTSTORE_PASSWORD}}"
+                        },
+                        {
+                            "key": "max.poll.records",
+                            "value": "10"
+                        },
+                        {
+                            "key": "ssl.endpoint.identification.algorithm",
+                            "value": "https"
+                        },
+                        {
+                            "key": "auto.offset.reset",
+                            "value": "earliest"
+                        }
+                    ],
+                    "nats": {
+                        "servers": [
+                            "nats://localhost:4222"
+                        ]
+                    },
+                    "timeouts": {
+                        "connectorInit": 60000,
+                        "consumerSendBatch": 30000,
+                        "consumerBatchProcessing": 300000,
+                        "producerSendBatch": 30000,
+                        "commitBatch": 30000,
+                        "pollInterval": 100
+                    },
+                    "tracing": {
+                        "enabled": true,
+                        "meta": true,
+                        "messages": true,
+                        "batch": true
+                    }
+                }
+            },
+            {
+                "id": "kafka-connector-gtd-cdc-get",
+                "name": "kafka-connector",
+                "enabled": false,
+                "settings": {
+                    "connection": {
+                        "group.id": "rms-group-dev-1",
+                        "bootstrap.servers": [
+                            "{{rms_gtd_r_broker_kafka_1}}",
+                            "{{rms_gtd_r_broker_kafka_2}}",
+                            "{{rms_gtd_r_broker_kafka_3}}",
+                            "{{rms_gtd_r_broker_kafka_4}}",
+                            "{{rms_gtd_r_broker_kafka_5}}"
+                        ]
+                    },
+                    "schemaRegistry": {
+                        "host": "http://t-kfk4u-st03.hq.ru.corp.leroymerlin.com:8081"
+                    },
+                    "parameters": [{
+                            "key": "security.protocol",
+                            "value": "SASL_SSL"
+                        },
+                        {
+                            "key": "sasl.mechanism",
+                            "value": "SCRAM-SHA-256"
+                        },
+                        {
+                            "key": "sasl.jaas.config",
+                            "value": "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"{{rms_gtd_kafka_reader_user}}\" password=\"{{rms_gtd_kafka_reader_password}}\";"
+                        },
+                        {
+                            "key": "ssl.truststore.location",
+                            "value": "./certs/client.truststore.jks"
+                        },
+                        {
+                            "key": "ssl.truststore.password",
+                            "value": "{{TRUSTSTORE_PASSWORD}}"
+                        },
+                        {
+                            "key": "max.poll.records",
+                            "value": "10"
+                        },
+                        {
+                            "key": "ssl.endpoint.identification.algorithm",
+                            "value": "https"
+                        },
+                        {
+                            "key": "auto.offset.reset",
+                            "value": "earliest"
+                        }
+                    ],
+                    "nats": {
+                        "servers": [
+                            "nats://localhost:4222"
+                        ]
+                    },
+                    "timeouts": {
+                        "connectorInit": 60000,
+                        "consumerSendBatch": 30000,
+                        "consumerBatchProcessing": 300000,
+                        "producerSendBatch": 10000,
+                        "commitBatch": 30000,
+                        "pollInterval": 100
+                    },
+                    "tracing": {
+                        "enabled": true,
+                        "meta": true,
+                        "messages": true,
+                        "batch": true
+                    }
+                }
+            },
+            {
+                "id": "kafka-connector-gtd-put",
+                "name": "kafka-connector",
+                "enabled": false,
+                "settings": {
+                    "connection": {
+                        "group.id": "rms-group-writer-dev",
+                        "bootstrap.servers": [
+                           "{{rms_gtd_w_broker_kafka_1}}",
+                           "{{rms_gtd_w_broker_kafka_2}}",
+                           "{{rms_gtd_w_broker_kafka_3}}",
+                           "{{rms_gtd_w_broker_kafka_4}}",
+                           "{{rms_gtd_w_broker_kafka_5}}"
+                        ]
+                    },
+                    "schemaRegistry": {
+                        "host": "http://t-kfk4u-st03.hq.ru.corp.leroymerlin.com:8081"
+                    },
+                    "parameters": [{
+                            "key": "security.protocol",
+                            "value": "SASL_SSL"
+                        },
+                        {
+                            "key": "sasl.mechanism",
+                            "value": "SCRAM-SHA-256"
+                        },
+                        {
+                            "key": "sasl.jaas.config",
+                            "value": "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"{{rms_gtd_kafka_writer_user}}\" password=\"{{rms_gtd_kafka_writer_password}}\";"
+                        },
+                        {
+                            "key": "ssl.truststore.location",
+                            "value": "./certs/client.truststore.jks"
+                        },
+                        {
+                            "key": "ssl.truststore.password",
+                            "value": "{{TRUSTSTORE_PASSWORD}}"
+                        },
+                        {
+                            "key": "max.poll.records",
+                            "value": "10"
+                        },
+                        {
+                            "key": "ssl.endpoint.identification.algorithm",
+                            "value": "https"
+                        },
+                        {
+                            "key": "auto.offset.reset",
+                            "value": "earliest"
+                        }
+                    ],
+                    "nats": {
+                        "servers": [
+                            "nats://localhost:4222"
+                        ]
+                    },
+                    "timeouts": {
+                        "connectorInit": 60000,
+                        "consumerSendBatch": 30000,
+                        "consumerBatchProcessing": 300000,
+                        "producerSendBatch": 10000,
+                        "commitBatch": 30000,
+                        "pollInterval": 100
+                    },
+                    "tracing": {
+                        "enabled": true,
+                        "meta": true,
+                        "messages": true,
+                        "batch": true
+                    }
+                }
+   }, 
+{
+        "id": "kafka-connector-order-create",
+        "name": "kafka-connector",
+        "enabled": true,
+        "settings": {
+          "connection": {
+            "group.id": "rmsapi-group-writer-prod-1",
+            "bootstrap.servers": [
+              "{{rms_broker_kafka_1}}",
+              "{{rms_broker_kafka_2}}",
+              "{{rms_broker_kafka_3}}",
+              "{{rms_broker_kafka_4}}",
+              "{{rms_broker_kafka_5}}"
+            ]
+          },
+          "parameters": [
+            {
+              "key": "security.protocol",
+              "value": "SASL_SSL"
+            },
+            {
+              "key": "sasl.mechanism",
+              "value": "SCRAM-SHA-256"
+            },
+            {
+              "key": "sasl.jaas.config",
+              "value": "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"{{rms_api_order_create_user_w}}\" password=\"{{rms_api_order_create_password_w}}\";"
+            },
+            {
+              "key": "ssl.truststore.location",
+              "value": "./certs/client.truststore.jks"
+            },
+            {
+              "key": "ssl.truststore.password",
+              "value": "{{TRUSTSTORE_PASSWORD}}"
+            },
+            {
+              "key": "max.poll.records",
+              "value": "10"
+            },
+            {
+              "key": "ssl.endpoint.identification.algorithm",
+              "value": "https"
+            },
+            {
+              "key": "auto.offset.reset",
+              "value": "earliest"
+            }
+          ],
+          "nats": {
+            "servers": [
+              "nats://localhost:4222"
+            ]
+          },
+          "timeouts": {
+            "connectorInit": 60000,
+            "consumerSendBatch": 30000,
+            "consumerBatchProcessing": 300000,
+            "producerSendBatch": 3000,
+            "commitBatch": 30000,
+            "pollInterval": 100
+          },
+          "tracing": {
+            "enabled": true,
+            "meta": true,
+            "messages": true,
+            "batch": true
+          }
+        }
+      },
+      {
+        "id": "kafka-connector-order-create-reader",
+        "name": "kafka-connector",
+        "enabled": true,
+        "settings": {
+          "connection": {
+            "group.id": "rmsapi-group-reader-prod-1",
+            "bootstrap.servers": [
+              "{{rms_broker_kafka_1}}",
+              "{{rms_broker_kafka_2}}",
+              "{{rms_broker_kafka_3}}",
+              "{{rms_broker_kafka_4}}",
+              "{{rms_broker_kafka_5}}"
+            ]
+          },
+          "parameters": [
+            {
+              "key": "security.protocol",
+              "value": "SASL_SSL"
+            },
+            {
+              "key": "sasl.mechanism",
+              "value": "SCRAM-SHA-256"
+            },
+            {
+              "key": "sasl.jaas.config",
+              "value": "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"{{rms_api_order_create_user_r}}\" password=\"{{rms_api_order_create_password_r}}\";"
+            },
+            {
+              "key": "ssl.truststore.location",
+              "value": "./certs/client.truststore.jks"
+            },
+            {
+              "key": "ssl.truststore.password",
+              "value": "{{TRUSTSTORE_PASSWORD}}"
+            },
+            {
+              "key": "max.poll.records",
+              "value": "1"
+            },
+            {
+              "key": "ssl.endpoint.identification.algorithm",
+              "value": "https"
+            },
+            {
+              "key": "auto.offset.reset",
+              "value": "latest"
+            }
+          ],
+          "nats": {
+            "servers": [
+              "nats://localhost:4222"
+            ]
+          },
+          "timeouts": {
+            "connectorInit": 60000,
+            "consumerSendBatch": 30000,
+            "consumerBatchProcessing": 300000,
+            "producerSendBatch": 3000,
+            "commitBatch": 30000,
+            "pollInterval": 100
+          },
+          "tracing": {
+            "enabled": true,
+            "meta": true,
+            "messages": true,
+            "batch": true
+          }
+        }
+      },
+      {
+        "id": "kafka-connector-order-create-reader-retry",
+        "name": "kafka-connector",
+        "enabled": true,
+        "settings": {
+          "connection": {
+            "group.id": "rmsapi-group-reader-prod-retry-1",
+            "bootstrap.servers": [
+              "{{rms_broker_kafka_1}}",
+              "{{rms_broker_kafka_2}}",
+              "{{rms_broker_kafka_3}}",
+              "{{rms_broker_kafka_4}}",
+              "{{rms_broker_kafka_5}}"
+            ]
+          },
+          "parameters": [
+            {
+              "key": "security.protocol",
+              "value": "SASL_SSL"
+            },
+            {
+              "key": "sasl.mechanism",
+              "value": "SCRAM-SHA-256"
+            },
+            {
+              "key": "sasl.jaas.config",
+              "value": "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"{{rms_api_order_create_user_r}}\" password=\"{{rms_api_order_create_password_r}}\";"
+            },
+            {
+              "key": "ssl.truststore.location",
+              "value": "./certs/client.truststore.jks"
+            },
+            {
+              "key": "ssl.truststore.password",
+              "value": "{{TRUSTSTORE_PASSWORD}}"
+            },
+            {
+              "key": "max.poll.records",
+              "value": "1"
+            },
+            {
+              "key": "ssl.endpoint.identification.algorithm",
+              "value": "https"
+            },
+            {
+              "key": "auto.offset.reset",
+              "value": "latest"
+            }
+          ],
+          "nats": {
+            "servers": [
+              "nats://localhost:4222"
+            ]
+          },
+          "timeouts": {
+            "connectorInit": 60000,
+            "consumerSendBatch": 30000,
+            "consumerBatchProcessing": 300000,
+            "producerSendBatch": 3000,
+            "commitBatch": 30000,
+            "pollInterval": 60000
+          },
+          "tracing": {
+            "enabled": true,
+            "meta": true,
+            "messages": true,
+            "batch": true
+          }
+        }
+      }
+    ]
+  },
+  "loaders": [
+    {
+      "id": "uuid-loader",
+      "name": "uuid-loader",
+      "initOrder": 3,
+      "settings": {}
+    },
+    {
+        "id": "vault-loader",
+        "name": "vault-loader",
+        "settings": {
+            "loginType": "APPROLE",
+            "host": "vault.lmru.adeo.com",
+            "port": 443,
+            "secrets": [{
+                    "vaultPath": "prod/data/test",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "test",
+                    "destination": "test"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_broker_kafka_1",
+                    "destination": "rms_broker_kafka_1"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_broker_kafka_2",
+                    "destination": "rms_broker_kafka_2"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_broker_kafka_3",
+                    "destination": "rms_broker_kafka_3"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_broker_kafka_4",
+                    "destination": "rms_broker_kafka_4"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_broker_kafka_5",
+                    "destination": "rms_broker_kafka_5"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_jdbc_uri",
+                    "destination": "rms_jdbc_uri"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_jdbc_user",
+                    "destination": "rms_jdbc_user"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_jdbc_password",
+                    "destination": "rms_jdbc_password"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_invoice_kafka_writer_topic",
+                    "destination": "rms_invoice_kafka_writer_topic"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_invoice_kafka_writer_user",
+                    "destination": "rms_invoice_kafka_writer_user"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_invoice_kafka_writer_password",
+                    "destination": "rms_invoice_kafka_writer_password"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_transfer_kafka_topic_main",
+                    "destination": "rms_transfer_kafka_topic_main"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_transfer_kafka_writer_main_password",
+                    "destination": "rms_transfer_kafka_writer_main_password"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_transfer_kafka_writer_main_user",
+                    "destination": "rms_transfer_kafka_writer_main_user"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_invoice_jdbc_uri",
+                    "destination": "rms_invoice_jdbc_uri"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_invoice_jdbc_user",
+                    "destination": "rms_invoice_jdbc_user"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_invoice_jdbc_password",
+                    "destination": "rms_invoice_jdbc_password"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_invoice_broker_kafka_1",
+                    "destination": "rms_invoice_broker_kafka_1"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_invoice_broker_kafka_2",
+                    "destination": "rms_invoice_broker_kafka_2"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_invoice_broker_kafka_3",
+                    "destination": "rms_invoice_broker_kafka_3"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_invoice_broker_kafka_4",
+                    "destination": "rms_invoice_broker_kafka_4"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_invoice_broker_kafka_5",
+                    "destination": "rms_invoice_broker_kafka_5"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_canonical_kafka_topic_transfer",
+                    "destination": "rms_canonical_kafka_topic_transfer"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_canonical_kafka_topic_transfer_user",
+                    "destination": "rms_canonical_kafka_topic_transfer_user"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_canonical_kafka_topic_transfer_password",
+                    "destination": "rms_canonical_kafka_topic_transfer_password"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_canonical_kafka_topic_order",
+                    "destination": "rms_canonical_kafka_topic_order"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_canonical_kafka_topic_order_user",
+                    "destination": "rms_canonical_kafka_topic_order_user"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_canonical_kafka_topic_order_password",
+                    "destination": "rms_canonical_kafka_topic_order_password"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_gtd_kafka_writer_topic",
+                    "destination": "rms_gtd_kafka_writer_topic"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_gtd_kafka_writer_user",
+                    "destination": "rms_gtd_kafka_writer_user"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_gtd_kafka_writer_password",
+                    "destination": "rms_gtd_kafka_writer_password"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_gtd_w_broker_kafka_1",
+                    "destination": "rms_gtd_w_broker_kafka_1"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_gtd_w_broker_kafka_2",
+                    "destination": "rms_gtd_w_broker_kafka_2"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_gtd_w_broker_kafka_3",
+                    "destination": "rms_gtd_w_broker_kafka_3"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_gtd_w_broker_kafka_4",
+                    "destination": "rms_gtd_w_broker_kafka_4"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_gtd_w_broker_kafka_5",
+                    "destination": "rms_gtd_w_broker_kafka_5"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_gtd_kafka_reader_topic",
+                    "destination": "rms_gtd_kafka_reader_topic"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_gtd_kafka_reader_user",
+                    "destination": "rms_gtd_kafka_reader_user"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_gtd_kafka_reader_password",
+                    "destination": "rms_gtd_kafka_reader_password"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_gtd_r_broker_kafka_1",
+                    "destination": "rms_gtd_r_broker_kafka_1"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_gtd_r_broker_kafka_2",
+                    "destination": "rms_gtd_r_broker_kafka_2"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_gtd_r_broker_kafka_3",
+                    "destination": "rms_gtd_r_broker_kafka_3"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_gtd_r_broker_kafka_4",
+                    "destination": "rms_gtd_r_broker_kafka_4"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_gtd_r_broker_kafka_5",
+                    "destination": "rms_gtd_r_broker_kafka_5"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_gtd_kafka_reader_group",
+                    "destination": "rms_gtd_kafka_reader_group"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "rms_invoice_kafka_writer_topic2",
+                    "destination": "rms_invoice_kafka_writer_topic2"
+                },
+                {
+                    "vaultPath": "prod/data/ripay",
+                    "destinationType": "PLACEHOLDER",
+                    "vaultDataKey": "TRUSTSTORE_PASSWORD",
+                    "destination": "TRUSTSTORE_PASSWORD"
+},
+          {
+            "vaultPath": "prod/data/ripay",
+            "destinationType": "PLACEHOLDER",
+            "vaultDataKey": "rms_api_order_create_topic",
+            "destination": "rms_api_order_create_topic"
+          },
+          {
+            "vaultPath": "prod/data/ripay",
+            "destinationType": "PLACEHOLDER",
+            "vaultDataKey": "rms_api_order_create_user_w",
+            "destination": "rms_api_order_create_user_w"
+          },
+          {
+            "vaultPath": "prod/data/ripay",
+            "destinationType": "PLACEHOLDER",
+            "vaultDataKey": "rms_api_order_create_password_w",
+            "destination": "rms_api_order_create_password_w"
+          },
+          {
+            "vaultPath": "prod/data/ripay",
+            "destinationType": "PLACEHOLDER",
+            "vaultDataKey": "rms_api_order_create_user_r",
+            "destination": "rms_api_order_create_user_r"
+          },
+          {
+            "vaultPath": "prod/data/ripay",
+            "destinationType": "PLACEHOLDER",
+            "vaultDataKey": "rms_api_order_create_password_r",
+            "destination": "rms_api_order_create_password_r"
+          },
+          {
+            "vaultPath": "prod/data/ripay",
+            "destinationType": "PLACEHOLDER",
+            "vaultDataKey": "rms_api_order_create_topic_retry",
+            "destination": "rms_api_order_create_topic_retry"
+          },
+          {
+            "vaultPath": "prod/data/ripay",
+            "destinationType": "PLACEHOLDER",
+            "vaultDataKey": "rms_api_order_create_topic_error",
+            "destination": "rms_api_order_create_topic_error"
+          }
+            ],
+            "namespace": "ripay"
+        }
+    }],
+    "context": {
+        "test": "{{test}}",
+        "rms_broker_kafka_1": "{{rms_broker_kafka_1}}",
+        "rms_broker_kafka_2": "{{rms_broker_kafka_2}}",
+        "rms_broker_kafka_3": "{{rms_broker_kafka_3}}",
+        "rms_broker_kafka_4": "{{rms_broker_kafka_4}}",
+        "rms_broker_kafka_5": "{{rms_broker_kafka_5}}",
+        "rms_invoice_broker_kafka_1": "{{rms_invoice_broker_kafka_1}}",
+        "rms_invoice_broker_kafka_2": "{{rms_invoice_broker_kafka_2}}",
+        "rms_invoice_broker_kafka_3": "{{rms_invoice_broker_kafka_3}}",
+        "rms_invoice_broker_kafka_4": "{{rms_invoice_broker_kafka_4}}",
+        "rms_invoice_broker_kafka_5": "{{rms_invoice_broker_kafka_5}}",
+        "rms_jdbc_uri": "{{rms_jdbc_uri}}",
+        "rms_jdbc_user": "{{rms_jdbc_user}}",
+        "rms_jdbc_password": "{{rms_jdbc_password}}",
+        "rms_invoice_kafka_writer_topic": "{{rms_invoice_kafka_writer_topic}}",
+        "rms_invoice_kafka_writer_topic2": "{{rms_invoice_kafka_writer_topic2}}",
+        "rms_invoice_kafka_writer_user": "{{rms_invoice_kafka_writer_user}}",
+        "rms_invoice_kafka_writer_password": "{{rms_invoice_kafka_writer_password}}",
+        "rms_invoice_jdbc_uri": "{{rms_invoice_jdbc_uri}}",
+        "rms_invoice_jdbc_user": "{{rms_invoice_jdbc_user}}",
+        "rms_invoice_jdbc_password": "{{rms_invoice_jdbc_password}}",
+        "rms_transfer_kafka_topic_main": "{{rms_transfer_kafka_topic_main}}",
+        "rms_transfer_kafka_writer_main_password": "{{rms_transfer_kafka_writer_main_password}}",
+        "rms_transfer_kafka_writer_main_user": "{{rms_transfer_kafka_writer_main_user}}",
+        "rms_canonical_kafka_topic_transfer": "{{rms_canonical_kafka_topic_transfer}}",
+        "rms_canonical_kafka_topic_transfer_password": "{{rms_canonical_kafka_topic_transfer_password}}",
+        "rms_canonical_kafka_topic_transfer_user": "{{rms_canonical_kafka_topic_transfer_user}}",
+        "rms_canonical_kafka_topic_order": "{{rms_canonical_kafka_topic_order}}",
+        "rms_canonical_kafka_topic_order_password": "{{rms_canonical_kafka_topic_order_password}}",
+        "rms_canonical_kafka_topic_order_user": "{{rms_canonical_kafka_topic_order_user}}",
+        "maxBatches": 5,
+        "rms_gtd_kafka_writer_topic": "{{rms_gtd_kafka_writer_topic}}",
+        "rms_gtd_kafka_writer_user": "{{rms_gtd_kafka_writer_user}}",
+        "rms_gtd_kafka_writer_password": "{{rms_gtd_kafka_writer_password}}",
+        "rms_gtd_w_broker_kafka_1": "{{rms_gtd_w_broker_kafka_1}}",
+        "rms_gtd_w_broker_kafka_2": "{{rms_gtd_w_broker_kafka_2}}",
+        "rms_gtd_w_broker_kafka_3": "{{rms_gtd_w_broker_kafka_3}}",
+        "rms_gtd_w_broker_kafka_4": "{{rms_gtd_w_broker_kafka_4}}",
+        "rms_gtd_w_broker_kafka_5": "{{rms_gtd_w_broker_kafka_5}}",
+        "rms_gtd_kafka_reader_topic": "{{rms_gtd_kafka_reader_topic}}",
+        "rms_gtd_kafka_reader_user": "{{rms_gtd_kafka_reader_user}}",
+        "rms_gtd_kafka_reader_password": "{{rms_gtd_kafka_reader_password}}",
+        "rms_gtd_r_broker_kafka_1": "{{rms_gtd_r_broker_kafka_1}}",
+        "rms_gtd_r_broker_kafka_2": "{{rms_gtd_r_broker_kafka_2}}",
+        "rms_gtd_r_broker_kafka_3": "{{rms_gtd_r_broker_kafka_3}}",
+        "rms_gtd_r_broker_kafka_4": "{{rms_gtd_r_broker_kafka_4}}",
+        "rms_gtd_r_broker_kafka_5": "{{rms_gtd_r_broker_kafka_5}}",
+        "rms_gtd_kafka_reader_group": "{{rms_gtd_kafka_reader_group}}",
+        "rms_limit_orders_days": 150,
+        "rms_limit_transfers_days": 150,
+	"rms_api_order_create_topic": "{{rms_api_order_create_topic}}",
+	"rms_api_order_create_user_w": "{{rms_api_order_create_user_w}}",
+	"rms_api_order_create_password_w": "{{rms_api_order_create_password_w}}",
+	"rms_api_order_create_user_r": "{{rms_api_order_create_user_r}}",
+	"rms_api_order_create_password_r": "{{rms_api_order_create_password_r}}",
+	"rms_api_order_create_topic_retry": "{{rms_api_order_create_topic_retry}}",
+	"rms_api_order_create_topic_error": "{{rms_api_order_create_topic_error}}",
+	"rms_api_max_retry": 3,
+	"redeploy": 1
+    },
+    "core": {
+        "disableTLS": true,
+        "debugPort": 4004,
+        "debugMode": false,
+        "policies": {
+            "Common Policies": [
+                "./node_modules/@platformeco/superagent-connector/dist/*",
+                "./node_modules/@platformeco/fastify-connector/dist/*",
+                "./node_modules/@platformeco/ioredis-connector/dist/*",
+                "./node_modules/@platformeco/postgres-connector/dist/*",
+                "./node_modules/@platformeco/kafka-connector/dist/*",
+                "./node_modules/@platformeco/jsonschema-policy/*",
+                "./node_modules/@platformeco/settags-policy/*",
+                "./node_modules/@platformeco/jsontobuffer-policy/*",
+                "./node_modules/@platformeco/buffertostring-policy/*",
+                "./node_modules/@platformeco/buffertojson-policy/*",
+                "./node_modules/@platformeco/xmltojson-policy/*",
+                "./node_modules/@platformeco/jdbc-connector/dist/*",
+                "./node_modules/@platformeco/schema-registry-connector/dist/src/*",
+                "./node_modules/@platformeco/setlogs-policy/*",
+                "./node_modules/@platformeco/jwt-policies/src/*",
+                "./node_modules/@platformeco/array-policies/*"
+            ],
+            "Custom Policies": [
+                "./custom_policies/*"
+            ]
+        },
+        "definitions": [
+            "./definitions/**"
+        ],
+        "sharedFlows": {
+            "Custom Flows": [
+                "./shared_flows/**"
+            ]
+        },
+        "loaders": [
+            "./node_modules/@platformeco/vault-loader/src",
+            "./loaders/uuid-loader"
+        ],
+        "connectors": [
+            "./node_modules/@platformeco/fastify-connector/dist",
+            "./node_modules/@platformeco/superagent-connector/dist",
+            "./node_modules/@platformeco/kafka-connector/dist",
+            "./node_modules/@platformeco/ioredis-connector/dist",
+            "./node_modules/@platformeco/schema-registry-connector/dist/src/connector",
+            "./node_modules/@platformeco/jdbc-connector/dist",
+            "./node_modules/@platformeco/postgres-connector/dist"
+        ]
+    },
+    "telemetry": {
+        "enabled": true,
+        "tracing": {
+            "transport": "nats-s",
+            "tracerName": "ripay",
+            "http": {
+                "endpoint": "http://localhost:14268/api/traces"
+            },
+            "nats-s": {
+                "config": {
+                    "clusterId": "stan-cluster",
+                    "clientId": "ch-core-mgw",
+                    "server": "nats://nats-streaming:4222",
+                    "queueGroup": "orchestrator",
+                    "subject": "spans"
+                },
+                "sendCallback": false,
+                "clientIdPrefix": "core_",
+                "maxPubAcksInflight": 50,
+                "initialReconnectTimeout": 2000
+            },
+            "tags": {
+                "headers": []
+            }
+        }
+    },
+    "logger": {
+        "enabled": true,
+        "settings": {
+            "level": "fatal"
+        }
+    },
+    "docker_registry": "docker-apim.apps.lmru.tech/crp1h13be5pn9egrno6m/apiplatform/core"
+}

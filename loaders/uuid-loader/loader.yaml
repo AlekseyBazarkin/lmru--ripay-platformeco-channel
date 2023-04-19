@@ -1,0 +1,8 @@
+info:
+ name: uuid-loader
+ title: uuid
+ description: uuid loader for Platformeco
+properties:
+ configSchema:
+   type: object
+   additionalProperties: false

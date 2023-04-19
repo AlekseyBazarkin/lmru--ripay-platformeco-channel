@@ -1,0 +1,24 @@
+info:
+  title: getJoke
+  name: getJoke
+  version: 1.0.0
+  description: Returns random joke (you can also specify tag)
+  contact:
+    name: LM Russia
+    url: www.leroymerlin.ru
+    email: info@leroymerlin.ru
+properties:
+  type: object
+  required:
+    - output
+  properties:
+    title:
+      type: string
+    description:
+      type: string
+    output:
+      type: string
+      description: Name of the variable in the context where joke will be saved
+    jokeTag:
+      type: string
+      description: Optional joke tag

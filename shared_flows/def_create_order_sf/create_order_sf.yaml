@@ -1,0 +1,83 @@
+id: 5569df2c-dd2b-404e-8ffc-2655391c0a45
+info:
+  name: create_order_sf
+  title: create_order_sf
+  version: 1.0.0 (by Svetlana Galunova)
+  description: Shared flow for order creation
+properties:
+  type: object
+  properties:
+    message:
+      type: string
+      format: ref
+    title:
+      type: string
+    description:
+      type: string
+    output:
+      type: string
+      format: ref
+  required:
+    - message
+    - output
+schemas:
+  output:
+    type: object
+    title: Result of creation
+  message:
+    type: object
+    title: Input Message
+flow:
+  execute:
+    - setTags:
+        id: 7253f983-fec7-4b14-9d4d-2b6a929077f0
+        title: set tags -  uuid
+        tags: '{"requestUuid": "$(uuid)"}'
+    - function:
+        id: f1955d25-3af2-4ccd-8e5e-f20480bbfb12
+        name: errorMessage
+        title: errorMessage
+        output: errorMessage
+    - JDBCUpdate:
+        id: 588bd92c-9e0b-449a-a6be-8c6ba92649c6
+        title: Call RMS procedure
+        connector: jdbc-connector-oracle
+        output: jdbcResult
+        queryTimeoutSec: 5
+        configurationType: UI
+        statement: '{ ? = call rms.xxlm_if331_api_orders_pkg.fill_buffer_tables(?, ?) }'
+        callable: true
+        parameters:
+          - direction: OUT
+            type: VARCHAR
+          - direction: IN
+            type: VARCHAR
+            input: '${JSON.stringify(message)}'
+          - direction: INOUT
+            type: VARCHAR
+            input: '${errorMessage}'
+        proceed-on-error: true
+        tracing:
+          enabled: true
+          statement: true
+          parameters: true
+          options: true
+          result: true
+    - switch:
+        id: 5906af04-23f3-49d1-94a0-1d5c5cc03c5e
+        title: jdbc error?
+        case:
+          - execute:
+              - function:
+                  id: 0772711d-7e2d-43d2-9ef7-ecd318a75f3a
+                  name: set_output_error
+                  title: set output error
+                  output: output
+            title: Error
+            condition: '!!jdbcResult.error'
+          - otherwise:
+              - function:
+                  id: 641825b1-e133-49ca-99af-f9dbaabdce0b
+                  name: set_output
+                  title: set output
+                  output: output
